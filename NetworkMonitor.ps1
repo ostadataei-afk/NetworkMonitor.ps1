@@ -8,7 +8,7 @@ $window.Title=""
 $window.WindowStyle="None"
 $window.ResizeMode="NoResize"
 $window.Width=370
-$window.Height=230
+$window.Height=260
 $window.WindowStartupLocation="Manual"
 $window.Background=[Windows.Media.Brushes]::Black
 $root=New-Object Windows.Controls.Grid
@@ -17,8 +17,11 @@ $r1=New-Object Windows.Controls.RowDefinition
 $r1.Height="*"
 $r2=New-Object Windows.Controls.RowDefinition
 $r2.Height="Auto"
+$r3=New-Object Windows.Controls.RowDefinition
+$r3.Height="Auto"
 $root.RowDefinitions.Add($r1)
 $root.RowDefinitions.Add($r2)
+$root.RowDefinitions.Add($r3)
 $chartBorder=New-Object Windows.Controls.Border
 $chartBorder.Background=[Windows.Media.Brushes]::Black
 $chartBorder.BorderBrush=[Windows.Media.Brushes]::DarkSlateGray
@@ -28,6 +31,33 @@ $chartCanvas=New-Object Windows.Controls.Canvas
 $chartBorder.Child=$chartCanvas
 [Windows.Controls.Grid]::SetRow($chartBorder,0)
 $root.Children.Add($chartBorder)|Out-Null
+$rateGrid=New-Object Windows.Controls.Grid
+$rateColumn1=New-Object Windows.Controls.ColumnDefinition
+$rateColumn1.Width="*"
+$rateColumn2=New-Object Windows.Controls.ColumnDefinition
+$rateColumn2.Width="*"
+$rateGrid.ColumnDefinitions.Add($rateColumn1)
+$rateGrid.ColumnDefinitions.Add($rateColumn2)
+$downloadValue=New-Object Windows.Controls.TextBlock
+$downloadValue.Text="0 B/s"
+$downloadValue.FontSize=12
+$downloadValue.FontWeight="Bold"
+$downloadValue.Foreground=[Windows.Media.Brushes]::DeepSkyBlue
+$downloadValue.HorizontalAlignment="Center"
+$downloadValue.Margin="0,4,0,0"
+[Windows.Controls.Grid]::SetColumn($downloadValue,0)
+$rateGrid.Children.Add($downloadValue)|Out-Null
+$uploadValue=New-Object Windows.Controls.TextBlock
+$uploadValue.Text="0 B/s"
+$uploadValue.FontSize=12
+$uploadValue.FontWeight="Bold"
+$uploadValue.Foreground=[Windows.Media.Brushes]::Orange
+$uploadValue.HorizontalAlignment="Center"
+$uploadValue.Margin="0,4,0,0"
+[Windows.Controls.Grid]::SetColumn($uploadValue,1)
+$rateGrid.Children.Add($uploadValue)|Out-Null
+[Windows.Controls.Grid]::SetRow($rateGrid,1)
+$root.Children.Add($rateGrid)|Out-Null
 $sessionGrid=New-Object Windows.Controls.Grid
 $sc1=New-Object Windows.Controls.ColumnDefinition
 $sc1.Width="*"
@@ -49,7 +79,7 @@ $sessionUpload.Foreground=[Windows.Media.Brushes]::LightGray
 $sessionUpload.Margin="0,8,0,0"
 [Windows.Controls.Grid]::SetColumn($sessionUpload,1)
 $sessionGrid.Children.Add($sessionUpload)|Out-Null
-[Windows.Controls.Grid]::SetRow($sessionGrid,1)
+[Windows.Controls.Grid]::SetRow($sessionGrid,2)
 $root.Children.Add($sessionGrid)|Out-Null
 $window.Content=$root
 $trayIcon=New-Object System.Windows.Forms.NotifyIcon
@@ -128,8 +158,6 @@ $needle.X2=$centerX+$radius*0.57*[Math]::Cos($needleAngle);$needle.Y2=$centerY+$
 $needle.Stroke=$accent;$needle.StrokeThickness=4;$chartCanvas.Children.Add($needle)|Out-Null
 $hub=New-Object Windows.Shapes.Ellipse;$hub.Width=9;$hub.Height=9;$hub.Fill=$accent
 [Windows.Controls.Canvas]::SetLeft($hub,$centerX-4.5);[Windows.Controls.Canvas]::SetTop($hub,$centerY-4.5);$chartCanvas.Children.Add($hub)|Out-Null
-Add-GaugeText (Format-Bytes $value) ($centerX-38) ($centerY+10) 12 ([Windows.Media.Brushes]::White) $true
-Add-GaugeText 'per second' ($centerX-28) ($centerY+24) 7 ([Windows.Media.Brushes]::Gray)
 }
 function Draw-Gauges{
 $chartCanvas.Children.Clear();$w=$chartCanvas.ActualWidth;$h=$chartCanvas.ActualHeight
@@ -167,6 +195,8 @@ while($historyDownload.Count -gt 10){$historyDownload.RemoveAt(0)}
 while($historyUpload.Count -gt 10){$historyUpload.RemoveAt(0)}
 $trayText="Down: $(Format-Bytes $download)/s | Up: $(Format-Bytes $upload)/s"
 $trayIcon.Text=$trayText.Substring(0,[Math]::Min(63,$trayText.Length))
+$downloadValue.Text="$(Format-Bytes $download)/s"
+$uploadValue.Text="$(Format-Bytes $upload)/s"
 $sessionDownload.Text="DOWNLOADED: $(Format-Bytes $script:sessionDownloadTotal)"
 $sessionUpload.Text="UPLOADED: $(Format-Bytes $script:sessionUploadTotal)"
 Draw-Gauges
