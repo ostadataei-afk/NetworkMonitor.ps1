@@ -91,7 +91,7 @@ $trayIcon.ContextMenuStrip=$trayMenu
 $exitItem.Add_Click({$window.Close()})
 $trayIcon.Visible=$true
 $window.ShowInTaskbar=$false
-$script:monitorVisible=$false
+$script:monitorVisible=$true
 $trayIcon.Add_MouseClick({
     param($sender,$eventArgs)
     if($eventArgs.Button -eq [System.Windows.Forms.MouseButtons]::Left){
@@ -205,8 +205,10 @@ Draw-Gauges
 $chartCanvas.Add_SizeChanged({Draw-Gauges})
 $window.Add_Closed({$timer.Stop();$visibilityTimer.Stop();$trayIcon.Visible=$false;$trayIcon.Dispose();$trayMenu.Dispose()})
 $timer.Start()
+$workArea=[Windows.SystemParameters]::WorkArea
+$window.Left=$workArea.Right-$window.Width-12
+$window.Top=$workArea.Bottom-$window.Height-40
+$window.Opacity=1
 $window.Show()
-$window.Hide()
-$visibilityTimer.Start()
 [Windows.Threading.Dispatcher]::Run()
 
