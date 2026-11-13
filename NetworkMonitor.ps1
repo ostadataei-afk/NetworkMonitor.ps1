@@ -7,8 +7,8 @@ $window=New-Object Windows.Window
 $window.Title=""
 $window.WindowStyle="None"
 $window.ResizeMode="NoResize"
-$window.Width=370
-$window.Height=260
+$window.Width=340
+$window.Height=240
 $window.WindowStartupLocation="Manual"
 $window.Background=[Windows.Media.Brushes]::Black
 $root=New-Object Windows.Controls.Grid
@@ -99,7 +99,7 @@ $trayIcon.Add_MouseClick({
         if($script:monitorVisible -and -not $window.IsVisible){
             $workArea=[Windows.SystemParameters]::WorkArea
             $window.Left=$workArea.Right-$window.Width-12
-            $window.Top=$workArea.Bottom-$window.Height-12
+            $window.Top=$workArea.Bottom-$window.Height-40
             $window.Opacity=0
             $window.Show()
         }
